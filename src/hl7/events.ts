@@ -10,9 +10,9 @@ export enum ENCOUNTER_STATUS {
 export class EventBase extends HL7Nested {
   readonly messageHeader = this.field(MSH, 'MSH');
   readonly patientIdentification = this.field(PID, 'PID');
-  readonly patientVisit = this.optionalField(PV1, 'PV1');
-  readonly additionalInfo = this.optionalField(ZPI, 'ZPI');
-  readonly eventType = this.messageHeader.messageType.triggerEvent;
+  // readonly patientVisit = this.optionalField(PV1, 'PV1');
+  // readonly additionalInfo = this.optionalField(ZPI, 'ZPI');
+  // readonly eventType = this.messageHeader.messageType.triggerEvent;
 
   static parseEvent(event: object): Event {
     const messageType = new EventBase(event).messageHeader.messageType;

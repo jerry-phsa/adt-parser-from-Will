@@ -8,6 +8,9 @@ export class MSH extends HL7Nested {
   readonly messageType = this.field(CM_MSG, 9);
 }
 
+// class Location extends HL7Nested {
+//   readonly city = this.field(String, 3)
+// }
 export class PID extends HL7Nested {
   readonly internalIds = this.list(CX, 3);
   readonly alternateIds = this.list(CX, 4);
@@ -16,7 +19,7 @@ export class PID extends HL7Nested {
   readonly dateOfBirth = this.field(String, 7);
   readonly sex = this.field(String, 8) as 'F' | 'M' | 'O' | 'U';
   readonly encounterId: string | undefined = this.optionalField(CX, 18)?.id;
-
+// readonly location = this.field(Location, 11)
   readonly mrn: string = (() => {
     const mrnId = this.internalIds.find(
       (id) => id.assigningAuthority === MRN_AUTHORITY,
