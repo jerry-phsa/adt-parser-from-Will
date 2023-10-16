@@ -1,15 +1,6 @@
-import {
-  LocalDate,
-  DateTimeFormatter,
-  convert,
-  LocalDateTime,
-} from '@js-joda/core';
+import assert from 'assert';
 
-export type Field =
-  | typeof HL7Nested
-  | typeof String
-  | typeof Number
-  | typeof Date;
+export type Field = typeof HL7Nested | typeof String | typeof Number;
 
 type FieldType<F extends Field> = F extends typeof String
   ? string
@@ -22,9 +13,6 @@ function periodCount(text: string): number {
 }
 
 const MAX_INDEX_DEPTH = 3;
-
-const DATE_FORMAT = DateTimeFormatter.ofPattern('yyyyMMdd');
-const DATETIME_FORMAT = DateTimeFormatter.ofPattern('yyyyMMddHHmmss');
 
 export class HL7Nested {
   readonly data: object;
@@ -49,7 +37,7 @@ export class HL7Nested {
 
   list<F extends Field>(cls: F, index: string | number): FieldType<F>[] {
     const data = this.data[this.accessor(index)];
-
+    assert(Array.isArray(data));
     return data.map((_, arrayIndex) => this.field(cls, index, arrayIndex));
   }
 
@@ -72,26 +60,20 @@ export class HL7Nested {
   ): FieldType<F> {
     const accessor = this.accessor(index);
     const data = this.data[accessor];
-    if (cls == Date) {
-      const value = this.field(String, index);
-      try {
-        return convert(
-          LocalDate.parse(value, DATE_FORMAT),
-        ).toDate() as FieldType<F>;
-      } catch (ex) {}
-      return convert(
-        LocalDateTime.parse(value, DATETIME_FORMAT),
-      ).toDate() as FieldType<F>;
-    } else if (cls == Number || cls == String) {
+    if (cls == Number || cls == String) {
       const indexDepth = periodCount(accessor);
       if (indexDepth < MAX_INDEX_DEPTH) {
-        
+        assert(
+          typeof data == 'object',
+          `Expected object type at ${accessor} but got ${data}`,
+        );
         return new HL7Nested(data, accessor, arrayIndex).field<F>(cls, 1);
       } else if (cls == Number) {
-        
+        assert(typeof data == 'string');
         return parseInt(data) as FieldType<F>;
       } else {
-        
+        assert(cls == String);
+        assert(typeof data == 'string');
         return data as FieldType<F>;
       }
     } else {
